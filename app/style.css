@@ -1,4 +1,4 @@
-/* Hallmark · pre-emit critique: P5 H4 E4 S5 R5 V4 · macrostructure: Workbench · genre: modern-minimal · theme: Coral · enrichment: synthetic system views · nav: N1b · footer: Ft2 */
+/* Hallmark · pre-emit critique: P5 H4 E4 S5 R5 V4 · macrostructure: Workbench · genre: modern-minimal · theme: Coral · anchor: 35 · enrichment: synthetic system views · nav: app shell · footer: none · contrast: pass (40–41) · slop: pass (42–45) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · responsive/mobile: pass (34, 49–57) · icons: pass (30) */
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;700&display=swap");
 
 html,
@@ -75,6 +75,12 @@ button:active {
   transition: transform var(--dur-micro) var(--ease-in);
 }
 
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -84,4 +90,3 @@ button:active {
     transition-duration: 150ms !important;
   }
 }
-
