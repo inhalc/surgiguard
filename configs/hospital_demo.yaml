@@ -1,0 +1,12 @@
+threshold: 0.5
+history_size: 6
+min_confidence: 0.6
+trim_fraction: 0.2
+disagreement_threshold: 0.18
+change_threshold: 0.22
+trend_window: 10
+trend_horizon_seconds: 1.0
+alert_threshold: 0.04
+alert_persistence: 3
+cooldown_seconds: 8.0
+

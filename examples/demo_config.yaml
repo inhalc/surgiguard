@@ -1,0 +1,5 @@
+threshold: 0.5
+history_size: 5
+trim_fraction: 0.2
+trend_horizon_seconds: 1.0
+

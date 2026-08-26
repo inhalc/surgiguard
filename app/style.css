@@ -1,0 +1,87 @@
+/* Hallmark · pre-emit critique: P5 H4 E4 S5 R5 V4 · macrostructure: Workbench · genre: modern-minimal · theme: Coral · enrichment: synthetic system views · nav: N1b · footer: Ft2 */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;700&display=swap");
+
+html,
+body {
+  overflow-x: clip;
+}
+
+.stApp {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3 {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: var(--text-display);
+  line-height: 1.06;
+}
+
+[data-testid="stHeader"] {
+  background: color-mix(in oklch, var(--color-paper) 88%, transparent);
+}
+
+[data-testid="stMetric"] {
+  background: var(--color-surface);
+  border: var(--rule-thin) solid var(--color-rule);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+[data-testid="stMetricValue"] {
+  color: var(--color-ink);
+  font-family: var(--font-outlier);
+  font-variant-numeric: tabular-nums;
+}
+
+.stSlider [role="slider"] {
+  background: var(--color-accent);
+}
+
+button,
+a,
+[role="slider"] {
+  min-height: 44px;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="slider"]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:hover {
+    transform: translateY(-1px);
+    transition: transform var(--dur-short) var(--ease-out);
+  }
+}
+
+button:active {
+  transform: translateY(1px);
+  transition: transform var(--dur-micro) var(--ease-in);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 150ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
+  }
+}
+
