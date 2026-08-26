@@ -77,6 +77,8 @@ tests/            # deterministic tests for the public core
 ## Quick start
 
 ```bash
+git clone https://github.com/inhalc/surgiguard.git
+cd surgiguard
 python -m pip install -e ".[app,dev]"
 python -m pytest -q
 streamlit run app/streamlit_app.py
@@ -115,4 +117,3 @@ Please use [`CITATION.cff`](CITATION.cff) when citing this project.
 
 The public software is released under the [Apache License 2.0](LICENSE). Publication figures retain
 their stated paper license and attribution.
-
