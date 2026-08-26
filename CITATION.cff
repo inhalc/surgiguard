@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+title: "SurgiGuard: Reliable Intraoperative Segmentation and Risk-Aware Video Intelligence"
+message: "If you use this project, please cite the associated KDD 2026 paper."
+type: software
+authors:
+  - family-names: Zhou
+    given-names: Jiutao
+version: 0.1.0
+date-released: 2026-08-26
+license: Apache-2.0
+preferred-citation:
+  type: conference-paper
+  title: "Controlling Prediction Dynamics for Reliable Intraoperative Segmentation"
+  authors:
+    - family-names: Zhou
+      given-names: Jiutao
+    - family-names: Li
+      given-names: Xiaoyang
+    - family-names: Zhang
+      given-names: Yuhao
+    - family-names: Peng
+      given-names: Xiaoqian
+    - family-names: Qu
+      given-names: Weiguang
+    - family-names: Ma
+      given-names: Peirong
+    - family-names: Gu
+      given-names: Yanhui
+  year: 2026
+  conference:
+    name: "The 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining"
+  doi: 10.1145/3770855.3818851
+
