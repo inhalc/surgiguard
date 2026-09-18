@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "SurgiGuard: Reliable Intraoperative Segmentation and Risk-Aware Video Intelligence"
+title: "SurgiGuard: Reliable Intraoperative Video Segmentation"
 message: "If you use this project, please cite the associated KDD 2026 paper."
 type: software
 authors:
@@ -30,4 +30,3 @@ preferred-citation:
   conference:
     name: "The 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining"
   doi: 10.1145/3770855.3818851
-

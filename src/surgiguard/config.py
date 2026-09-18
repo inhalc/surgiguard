@@ -27,4 +27,3 @@ def load_config(path: str | Path) -> SurgiGuardConfig:
     with Path(path).open("r", encoding="utf-8") as handle:
         values = yaml.safe_load(handle) or {}
     return SurgiGuardConfig(**values)
-

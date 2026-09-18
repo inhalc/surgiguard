@@ -35,6 +35,7 @@ class RiskMonitor:
         if triggered:
             self._last_trigger = timestamp
             self._consecutive = 0
-        reason = "persistent expansion toward monitored region" if triggered else "monitoring"
+        reason = (
+            "persistent area-growth trend detected" if triggered else "monitoring area-growth trend"
+        )
         return RiskAlert(triggered, float(score), float(timestamp), reason)
-

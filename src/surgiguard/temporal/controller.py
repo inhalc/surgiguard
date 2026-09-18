@@ -8,7 +8,7 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.typing import NDArray
 
-from .alignment import IdentityAligner, MaskAligner
+from .alignment import DenseFlowAligner, MaskAligner
 from .history_reference import mix_unreliable_reference, robust_reference
 from .stability_gate import compute_stability_gate, image_change_evidence
 
@@ -22,6 +22,13 @@ class ControlledPrediction:
     gate: FloatArray
     stabilized: FloatArray
     change_evidence: FloatArray
+    timestamp: float
+
+
+@dataclass(frozen=True)
+class HistoryEntry:
+    frame: NDArray[np.uint8]
+    probability: FloatArray
     timestamp: float
 
 
@@ -47,8 +54,8 @@ class TemporalController:
             raise ValueError("history_size must be positive")
         if change_high <= change_low:
             raise ValueError("change_high must exceed change_low")
-        self._history: deque[FloatArray] = deque(maxlen=history_size)
-        self._aligner = aligner or IdentityAligner()
+        self._history: deque[HistoryEntry] = deque(maxlen=history_size)
+        self._aligner = aligner or DenseFlowAligner()
         self._previous_frame: NDArray[np.uint8] | None = None
         self.min_confidence = min_confidence
         self.trim_fraction = trim_fraction
@@ -60,6 +67,7 @@ class TemporalController:
         self.change_temperature = change_temperature
         self.change_low = change_low
         self.change_high = change_high
+        self._last_timestamp: float | None = None
 
     def update(
         self,
@@ -67,12 +75,26 @@ class TemporalController:
         probability: FloatArray,
         timestamp: float,
     ) -> ControlledPrediction:
+        frame_array = np.asarray(frame, dtype=np.uint8)
         current = np.asarray(probability, dtype=np.float32)
+        if frame_array.ndim not in (2, 3) or frame_array.shape[:2] != current.shape:
+            raise ValueError("frame and probability must share spatial shape")
+        if current.ndim != 2:
+            raise ValueError("probability must be two-dimensional")
+        if not np.isfinite(current).all():
+            raise ValueError("probability must contain only finite values")
+        if np.any((current < 0.0) | (current > 1.0)):
+            raise ValueError("probability values must lie in [0, 1]")
+        if self._last_timestamp is not None and timestamp <= self._last_timestamp:
+            raise ValueError("timestamps must strictly increase within a stream")
         if not self._history:
             zeros = np.zeros_like(current)
             result = ControlledPrediction(current, current, zeros, current, zeros, timestamp)
         else:
-            aligned = [self._aligner.align(mask, frame) for mask in self._history]
+            aligned = [
+                self._aligner.align(item.frame, frame_array, item.probability)
+                for item in self._history
+            ]
             masks = np.stack([item.warped for item in aligned])
             confidence = np.stack([item.confidence for item in aligned])
             raw_reference, count = robust_reference(
@@ -99,7 +121,7 @@ class TemporalController:
             stabilized = gate * reference + (1.0 - gate) * current
             result = ControlledPrediction(current, reference, gate, stabilized, change, timestamp)
 
-        self._history.append(result.stabilized.copy())
-        self._previous_frame = np.asarray(frame, dtype=np.uint8).copy()
+        self._history.append(HistoryEntry(frame_array.copy(), result.stabilized.copy(), timestamp))
+        self._previous_frame = frame_array.copy()
+        self._last_timestamp = timestamp
         return result
-

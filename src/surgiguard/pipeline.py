@@ -21,6 +21,8 @@ class PipelineResult:
     raw_mask: NDArray[np.bool_]
     stabilized_mask: NDArray[np.bool_]
     gate: FloatArray
+    aligned_reference: FloatArray
+    change_evidence: FloatArray
     flicker: float
     drift: float
     trend: TrendEstimate
@@ -49,8 +51,12 @@ class SurgiGuardPipeline:
         controlled = self.controller.update(frame, prediction.probability, timestamp)
         raw_mask = controlled.raw >= self.threshold
         stable_mask = controlled.stabilized >= self.threshold
-        flicker = 0.0 if self._previous_mask is None else mask_flicker(self._previous_mask, stable_mask)
-        drift = 0.0 if self._previous_mask is None else centroid_drift(self._previous_mask, stable_mask)
+        flicker = (
+            0.0 if self._previous_mask is None else mask_flicker(self._previous_mask, stable_mask)
+        )
+        drift = (
+            0.0 if self._previous_mask is None else centroid_drift(self._previous_mask, stable_mask)
+        )
         trend = self.trend.update(timestamp, stable_mask)
         score = max(0.0, trend.predicted_area - trend.current_area) / stable_mask.size
         alert = self.risk_monitor.evaluate(score, timestamp)
@@ -61,10 +67,11 @@ class SurgiGuardPipeline:
             raw_mask=raw_mask,
             stabilized_mask=stable_mask,
             gate=controlled.gate,
+            aligned_reference=controlled.reference,
+            change_evidence=controlled.change_evidence,
             flicker=flicker,
             drift=drift,
             trend=trend,
             alert=alert,
             timestamp=timestamp,
         )
-

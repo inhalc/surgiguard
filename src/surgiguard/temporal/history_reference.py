@@ -59,4 +59,3 @@ def mix_unreliable_reference(
 
     weight = _sigmoid((reliable_count.astype(np.float32) - required_count) / count_temperature)
     return weight * reference + (1.0 - weight) * current
-

@@ -38,4 +38,3 @@ class AreaTrend:
         slope = 0.0 if denominator == 0.0 else float(np.dot(times, areas - areas.mean()) / denominator)
         predicted = max(0.0, area + self.horizon_seconds * slope)
         return TrendEstimate(slope, area, predicted, len(self._samples))
-

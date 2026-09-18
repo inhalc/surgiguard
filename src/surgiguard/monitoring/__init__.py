@@ -12,4 +12,3 @@ __all__ = [
     "centroid_drift",
     "mask_flicker",
 ]
-

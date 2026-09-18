@@ -16,4 +16,3 @@ class MedSAMAdapter(CallableSegmenter):
 
     def __init__(self, predictor: Callable[[ImageArray], FloatArray]) -> None:
         super().__init__(predictor)
-

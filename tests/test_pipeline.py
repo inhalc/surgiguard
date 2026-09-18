@@ -16,6 +16,8 @@ def test_pipeline_returns_controlled_mask_metrics_and_alert_state() -> None:
     second = pipeline.process(bright, 1.0)
 
     assert first.stabilized_mask.shape == (4, 4)
+    assert first.aligned_reference.shape == (4, 4)
+    assert first.change_evidence.shape == (4, 4)
     assert second.raw_probability.mean() == 1.0
     assert second.flicker == 1.0
     assert second.alert.triggered is False

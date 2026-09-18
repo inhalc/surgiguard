@@ -47,4 +47,3 @@ class CallableSegmenter(Segmenter):
 
     def predict(self, frame: ImageArray, timestamp: float) -> FramePrediction:
         return FramePrediction(self._predictor(frame), timestamp)
-

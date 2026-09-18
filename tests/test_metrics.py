@@ -35,3 +35,4 @@ def test_risk_monitor_requires_persistent_score_and_respects_cooldown() -> None:
     assert not monitor.evaluate(score=0.2, timestamp=0.0).triggered
     assert monitor.evaluate(score=0.2, timestamp=1.0).triggered
     assert not monitor.evaluate(score=0.3, timestamp=2.0).triggered
+    assert monitor.evaluate(score=0.3, timestamp=2.0).reason == "monitoring area-growth trend"

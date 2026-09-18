@@ -2,10 +2,9 @@
 
 # SurgiGuard
 
-### Reliable intraoperative segmentation and risk-aware video intelligence
+### Reliable Intraoperative Video Segmentation
 
 [![KDD 2026](https://img.shields.io/badge/KDD-2026-25201e)](https://doi.org/10.1145/3770855.3818851)
-![Hospital Deployment](https://img.shields.io/badge/status-hospital_deployment-2a7c78)
 ![Python](https://img.shields.io/badge/python-3.10+-c74d39)
 ![License](https://img.shields.io/badge/license-Apache--2.0-726862)
 
@@ -13,107 +12,77 @@
 
 </div>
 
-![SurgiGuard control room](assets/hero.png)
+![Synthetic SurgiGuard demonstration](assets/hero.png)
 
-SurgiGuard is a deployment-oriented reliability layer for intraoperative video segmentation. It
-keeps an existing image segmenter fixed, controls how predictions evolve over time, and exposes
-online stability metrics and short-horizon risk cues. The system has been deployed on a
-collaborating hospital's server; this repository is the public, data-free project edition.
+SurgiGuard is a model-agnostic temporal reliability layer for video segmentation. It aligns recent
+probability maps to the current frame, builds a confidence-weighted history reference, and releases
+the temporal anchor where current evidence indicates genuine change. The public demo is synthetic;
+it uses no clinical imagery or hospital source code.
 
-## Why this project exists
+## Implemented capabilities
 
-A model can score well frame by frame and still be difficult to trust as a stream. Instrument
-motion, irrigation, material injection, occlusion, and acquisition changes can produce abrupt mask
-flicker or spatial drift. Uniform smoothing removes some noise but can also hide a real procedural
-change. SurgiGuard treats that stability–responsiveness tension as a control problem.
+- **Motion-aware history:** dense optical flow warps each stored probability map into the current
+  frame and discounts inconsistent or out-of-bounds correspondence.
+- **Stability–response control:** a per-pixel gate combines the aligned reference with the current
+  model probability instead of applying uniform smoothing.
+- **Stream-safe monitoring:** independent per-stream state, explicit reset, time-order validation,
+  flicker/drift metrics, and an area-growth trend alert.
 
-| Capability | What the system does |
-|---|---|
-| **Stable segmentation** | Aligns a short prediction history and rejects unreliable or extreme contributors. |
-| **Change-aware updates** | Anchors stable regions while releasing the update where appearance and prediction evidence indicate change. |
-| **Operational monitoring** | Tracks flicker, centroid drift, area trend, and persistent risk cues alongside the mask. |
+![Implemented architecture](assets/architecture.png)
 
-## System view
-
-![SurgiGuard architecture](assets/architecture.png)
-
-The public implementation follows the same core separation as the deployed project: a model
-adapter produces per-frame probabilities; the temporal controller estimates a reliability-filtered
-history reference; a per-pixel gate mixes history and current evidence; monitoring modules observe
-the resulting trajectory.
+The included synthetic sequence contains target motion, a short prediction artifact, recovery, and
+real area growth. Its four panels are produced by the same controller used by the Python API.
 
 ![Synthetic qualitative sequence](assets/qualitative_results.png)
 
-The image above is a synthetic illustration included to avoid distributing clinical data.
-
-## Publication-reported results
-
-The associated KDD 2026 paper evaluates 300 intraoperative sequences and three public surgical
-benchmarks. The values below are **reported in the publication** and are not presented as a fresh
-benchmark run from this public repository.
-
-| Measure | Per-frame baseline | Stability-gated inference |
-|---|---:|---:|
-| Dice | 0.62 | **0.73** |
-| Centroid drift | 5.8 px | **2.6 px** |
-| Flicker rate | 0.21 | **0.09** |
-| Trend-prompt lead time | 1.0 s | **2.2 s** |
-
-## Repository layout
-
-```text
-src/surgiguard/
-├── models/       # model-agnostic segmenter interface and MedSAM adapter boundary
-├── temporal/     # alignment, robust reference, stability gate, controller
-├── monitoring/   # flicker, drift, area trends, persistent alerts
-├── service/      # FastAPI schemas and controller endpoint
-└── pipeline.py   # end-to-end orchestration
-app/              # Streamlit control-room demo on a synthetic sequence
-scripts/          # video runner and sequence evaluator
-configs/          # explicit operating points
-tests/            # deterministic tests for the public core
-```
-
-## Quick start
+## Try the complete example
 
 ```bash
-git clone https://github.com/inhalc/surgiguard.git
-cd surgiguard
 python -m pip install -e ".[app,dev]"
 python -m pytest -q
 streamlit run app/streamlit_app.py
 ```
 
-To connect an authorized segmentation model, expose a Python callable that accepts a BGR image and
-returns a two-dimensional probability map in `[0, 1]`:
+To connect an authorized segmenter, provide a callable that receives a BGR frame and returns a
+two-dimensional probability map in `[0, 1]`:
 
 ```bash
 python scripts/run_video.py procedure.mp4 --predictor my_model:predict_probability
 ```
 
-The controller API can also be launched independently:
+The single-process demonstration API is available with:
 
 ```bash
 uvicorn surgiguard.service.api:app --reload
 ```
 
-## Public release boundary
+Core entry points are `temporal/controller.py` for stateful inference, `pipeline.py` for monitoring,
+and `service/api.py` for isolated stream sessions. See [the design note](docs/design.md) for the
+technical choices and boundaries.
 
-- Hospital production source, clinical imagery, annotations, and model weights are not included.
-- The public repository exposes the system architecture and representative implementation without
-  copying the hospital environment.
-- This software is a research and engineering artifact for clinical decision support; it is not an
-  autonomous diagnostic or treatment system.
+## Publication results
 
-## Research output
+The associated KDD 2026 paper reports the following comparison on 300 intraoperative sequences.
+These are paper results—not measurements from the synthetic public demo.
+
+| Measure | nnU-Net | Proposed method |
+|---|---:|---:|
+| Dice | 0.62 ± 0.03 | **0.73 ± 0.02** |
+| Centroid drift (px) | 5.8 ± 0.6 | **2.6 ± 0.4** |
+| Flicker rate | 0.21 ± 0.03 | **0.09 ± 0.01** |
+| Trend-prompt lead time (s) | 1.0 ± 0.3 | **2.2 ± 0.4** |
+
+The paper also evaluates three public surgical benchmarks; consult the publication for protocols,
+baselines, and full tables.
 
 **Jiutao Zhou**, Xiaoyang Li, Yuhao Zhang, Xiaoqian Peng, Weiguang Qu, Peirong Ma, and Yanhui Gu.
 “Controlling Prediction Dynamics for Reliable Intraoperative Segmentation.” *KDD 2026*.
-[Paper and DOI](https://doi.org/10.1145/3770855.3818851)
+[DOI and paper](https://doi.org/10.1145/3770855.3818851) · [Citation metadata](CITATION.cff)
 
-Please use [`CITATION.cff`](CITATION.cff) when citing this project.
+## Public release boundary
 
-## License
+This repository is a clean, data-free implementation of the published system design. Hospital
+production source, clinical data, annotations, private configuration, and model weights are not
+included. The software is a research artifact, not an autonomous diagnostic or treatment system.
 
-The public software is released under the [Apache License 2.0](LICENSE). Publication figures retain
-their stated paper license and attribution.
+Released under the [Apache License 2.0](LICENSE).

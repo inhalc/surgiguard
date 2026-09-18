@@ -46,4 +46,3 @@ def image_change_evidence(
     if difference.ndim == 3:
         difference = difference.mean(axis=2)
     return np.clip((difference - low) / (high - low), 0.0, 1.0).astype(np.float32)
-

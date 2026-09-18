@@ -1,2 +1,1 @@
 """HTTP service adapters."""
-

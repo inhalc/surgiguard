@@ -26,4 +26,3 @@ def centroid_drift(previous: NDArray[np.bool_], current: NDArray[np.bool_]) -> f
     if before_points.size == 0 or after_points.size == 0:
         return float("inf")
     return float(np.linalg.norm(after_points.mean(axis=0) - before_points.mean(axis=0)))
-
