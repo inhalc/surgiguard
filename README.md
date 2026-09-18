@@ -12,8 +12,6 @@ Motion-aware temporal control for a fixed segmentation model.
 
 [Demo](#demo) · [Architecture](#architecture) · [Quick start](#quick-start) · [Research](#research)
 
-**Jiutao Zhou** · Project Lead & First Author
-
 </div>
 
 ---
