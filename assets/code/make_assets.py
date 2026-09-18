@@ -1,4 +1,4 @@
-"""Generate recruiter-facing SurgiGuard visuals from synthetic, non-clinical data."""
+"""Generate SurgiGuard pipeline diagrams and synthetic demonstration figures."""
 
 from __future__ import annotations
 
@@ -35,61 +35,37 @@ def run_demo(length: int = 9, size: int = 180):
 
 def save_hero() -> None:
     sequence, results = run_demo()
-    item = sequence[4]
-    result = results[4]
-    fig = plt.figure(figsize=(16, 9), facecolor=PAPER)
-    grid = fig.add_gridspec(3, 12, height_ratios=[1.1, 5, 1.4], hspace=0.28, wspace=0.25)
-    title = fig.add_subplot(grid[0, :])
-    title.axis("off")
-    title.text(0, 0.72, "SURGIGUARD / CONTROL ROOM", color=MUTED, fontsize=12, weight="bold")
-    title.text(
-        0,
-        0.04,
-        "Stable when it should be. Responsive when it must be.",
-        color=INK,
-        fontsize=28,
-        weight="bold",
-    )
-    for index, (image, label, cmap) in enumerate(
-        (
-            (item.frame, "SYNTHETIC INPUT", None),
-            (result.raw_probability, "BASE PREDICTION", "magma"),
-            (result.aligned_reference, "ALIGNED REFERENCE", "magma"),
-            (result.stabilized_probability, "CONTROLLED OUTPUT", "magma"),
-        )
-    ):
-        ax = fig.add_subplot(grid[1, index * 3 : (index + 1) * 3])
+    item, result = sequence[4], results[4]
+    fig = plt.figure(figsize=(14, 6.1), facecolor=PAPER)
+    fig.text(0.045, 0.925, "SURGIGUARD  /  TEMPORAL INFERENCE", color=TEAL,
+             fontsize=11, weight="bold")
+    fig.text(0.045, 0.845, "From frame predictions to a controlled video stream",
+             color=INK, fontsize=22, weight="bold")
+    fig.text(0.045, 0.79, "Fixed segmenter  /  Motion-aligned history  /  Per-pixel update gate",
+             color=MUTED, fontsize=11)
+    panels = [
+        (item.frame, "01  INPUT FRAME", "Synthetic acquisition", None),
+        (result.raw_probability, "02  BASE PREDICTION", "Current model probability", "magma"),
+        (result.aligned_reference, "03  ALIGNED HISTORY", "Reference in target coordinates", "magma"),
+        (result.stabilized_probability, "04  CONTROLLED OUTPUT", "History + current evidence", "magma"),
+    ]
+    for i, (values, title, subtitle, cmap) in enumerate(panels):
+        x = 0.045 + i * 0.238
+        ax = fig.add_axes([x, 0.235, 0.205, 0.47])
         if cmap is None:
-            ax.imshow(image)
+            ax.imshow(values)
         else:
-            ax.imshow(image, cmap=cmap, vmin=0, vmax=1)
-        ax.set_title(label, loc="left", fontsize=10, color=MUTED, pad=10, weight="bold")
-        ax.set_xticks([])
-        ax.set_yticks([])
-        for spine in ax.spines.values():
-            spine.set_color(RULE)
-    metrics = (
-        ("FLICKER", f"{result.flicker:.3f}", "synthetic"),
-        ("DRIFT", f"{result.drift:.2f} px", "synthetic"),
-        ("GATE MEAN", f"{result.gate.mean():.2f}", "synthetic"),
-    )
-    for index, (name, value, note) in enumerate(metrics):
-        ax = fig.add_subplot(grid[2, index * 4 : (index + 1) * 4])
-        ax.axis("off")
-        ax.add_patch(
-            FancyBboxPatch(
-                (0, 0),
-                1,
-                1,
-                boxstyle="round,pad=0.01,rounding_size=0.025",
-                facecolor="#fffdfb",
-                edgecolor=RULE,
-            )
-        )
-        ax.text(0.05, 0.67, name, fontsize=10, color=MUTED, weight="bold")
-        ax.text(0.05, 0.22, value, fontsize=23, color=TEAL, weight="bold")
-        ax.text(0.95, 0.24, note, fontsize=8, color=MUTED, ha="right")
-    fig.savefig(OUT / "hero.png", dpi=180, bbox_inches="tight", facecolor=PAPER)
+            ax.imshow(values, cmap=cmap, vmin=0, vmax=1)
+        ax.set_axis_off()
+        fig.text(x, 0.735, title, color=TEAL if i == 3 else INK,
+                 fontsize=10, weight="bold")
+        fig.text(x, 0.195, subtitle, color=MUTED, fontsize=9)
+    fig.text(0.045, 0.105, "INSPECT THE UPDATE", color=TEAL, fontsize=10, weight="bold")
+    fig.text(0.25, 0.105, "Motion  →  transient artifact  →  recovery  →  area growth",
+             color=INK, fontsize=11)
+    fig.text(0.045, 0.04, "Synthetic demonstration · Actual pipeline output · Probability maps use a shared 0–1 scale",
+             color=MUTED, fontsize=9)
+    fig.savefig(OUT / "hero.png", dpi=220, facecolor=PAPER)
     plt.close(fig)
 
 
